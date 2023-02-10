@@ -206,7 +206,10 @@
                         cell.removeChild(cell.firstChild); 
                 }
             }
-            console.log("thgfhsd");
+            let chat = document.getElementById("chatroom");
+            while(chat.firstChild){
+                chat.removeChild(chat.firstChild);
+            }
         });
 
         document.getElementById("buttonPause").addEventListener("click", function (e) {
