@@ -1,0 +1,62 @@
+﻿@model IEnumerable<ChessTask_EF_SignalR.Models.Step>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Start Page</title>
+</head>
+<body>
+   
+    <h2>Заполните форму:</h2>
+    <form method="post">
+        @*<p>
+            <label for="al">Выберите алгоритм построения траектории:</label>
+            <select name="al" type="number">
+                <option value="0">Построение гамильтонова пути по правилу Варнсдорфа</option>
+                <option value="1">Построение гамильтонова цикла по маршруту Турка</option>
+            </select>
+        </p>*@
+        <p>
+            <label for="x_start">Начальное значение по горизонтали:</label>
+            <select name="x_start" type="number">
+                <option value="0">8</option>
+                <option value="1">7</option>
+                <option value="2">6</option>
+                <option value="3">5</option>
+
+                <option value="4">4</option>
+                <option value="5">3</option>
+                <option value="6">2</option>
+                <option value="7">1</option>
+            </select>
+        </p>
+
+        <p>
+            <label for="y_start">Начальное значение по вертикали:</label>
+            <select name="y_start" type="number">
+                <option value="0">A</option>
+                <option value="1">B</option>
+                <option value="2">C</option>
+                <option value="3">D</option>
+
+                <option value="4">E</option>
+                <option value="5">F</option>
+                <option value="6">G</option>
+                <option value="7">H</option>
+            </select>
+        </p>
+
+        <p>
+            <label for="t">Интервал между ходами:</label>
+            <select name="t" type="number">
+                <option value="0,5">0.5 сек</option>
+                <option value="1">1 сек</option>
+                <option value="2">2 сек</option>
+            </select>
+        </p>
+        <input type="submit" value="Начать" />
+    </form>
+    
+</body>
+</html>
+

@@ -1,0 +1,226 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Start Page</title>
+    <style>
+        .box {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Montserrat', sans-serif;
+            align-items: flex-start;
+        }
+        .chat{
+            width: 200px;
+        }
+        .chatText{
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 3px;
+            font-weight: 600;
+            color: #524f4e;
+        }
+        .centered {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .floating-button {
+            text-decoration: none;
+            display: inline-block;
+            width: 140px;
+            height: 45px;
+            line-height: 45px;
+            border-radius: 45px;
+            margin: 10px 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 3px;
+            font-weight: 600;
+            color: #524f4e;
+            background: white;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, .1);
+            transition: .3s;
+        }
+        .chess-board {
+            border-spacing: 0;
+            border-collapse: collapse;
+        }
+
+            .chess-board th {
+                padding: .5em;
+            }
+
+            .chess-board td {
+                border: 0.7px solid;
+                width: 5em;
+                height: 5em;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            .chess-board .white {
+                background: #FFFFFF;
+            }
+
+            .chess-board .black {
+                background: #808080;
+            }
+
+            .chess-board .red {
+                background: #B22222;
+                /*background-image: url("chess_horse.png");
+                  width: 90%;
+                  background-size: cover;*/
+            }
+
+            .chess-board .green {
+                background: #2E8B57;
+            }
+    </style>
+
+</head>
+<body>
+    @{
+        int x = ViewBag.coord_x;
+        int y = ViewBag.coord_y;
+       
+    }
+    
+    <div class="box">
+        <div class="centered">
+@*            <img src="ImageFiles/chess_horse.png" alt="Sample Photo" />
+*@            <div class="buttons">
+                <input type="button" id="buttonStart" value="Начать игру" class="floating-button"@*style ="margin-left:20px;" *@>
+                <input type="button" id="buttonPause" value="Пауза/Продолжить" class="floating-button" style="width:190px;">
+            </div>
+
+            <table class="chess-board" id="chessboard">
+                <tbody>
+
+                    <tr>
+                        <th></th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                        <th>E</th>
+                        <th>F</th>
+                        <th>G</th>
+                        <th>H</th>
+                    </tr>
+                    @for (int i = 8; i > 0; i--)
+                    {
+                        <tr>
+                            <th>@i</th>
+                            @for (int j = 1; j <= 8; j++)
+                            {
+                                @if (y == 8 - i && x == j - 1)
+                                {
+                                    <td class="red"></td>
+                                }
+                                else if (((i + j) / 2) * 2 == i + j)
+                                {
+                                    <td class="black"></td>
+                                }
+                                else
+                                {
+                                    <td class="white"></td>
+                                }
+                            }
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+        <div class="nav-link text-dark" id="chatroom"></div>
+    </div>
+
+    <script src="js/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/game")
+            .build();
+
+        let dict = [ "A", "B", "C", "D", "E", "F", "G", "H" ];
+
+        hubConnection.on("Receive", function (x, y, prev_x, prev_y, mes) {
+
+            let elem = document.createElement("p");
+            elem.setAttribute('class', 'chatText');
+            let Y = String(8-y); 
+            elem.appendChild(document.createTextNode(mes+dict[x]+Y));
+            let firstElem = document.getElementById("chatroom").firstChild;
+            document.getElementById("chatroom").insertBefore(elem, firstElem);
+
+            let step = document.getElementById("chessboard").rows[y + 1].cells[x + 1];
+            
+            step.setAttribute('class', 'red');
+
+            let imgHorse = document.createElement("img");
+            imgHorse.src = "ImageFiles/chess_horse.png";
+            imgHorse.style.width = "100%";
+            step.appendChild(imgHorse);
+
+           
+            if (!(x == prev_x && y == prev_y)){
+                
+                let prev_step = document.getElementById("chessboard").rows[prev_y + 1].cells[prev_x + 1];
+                prev_step.setAttribute('class', 'green');
+                if (prev_step.firstChild)
+                    prev_step.removeChild(prev_step.firstChild);
+            }
+            
+         });
+
+        document.getElementById("buttonStart").addEventListener("click", function (e) {
+
+            hubConnection.invoke("ChangeStateGo");
+
+            let board = document.getElementById("chessboard");
+            for (let i = 1; i < 9; i++) {
+
+                for (let j = 1; j < 9; j++) {
+                    let cell = board.rows[i].cells[j];
+                    if ((i + j) % 2 == 0) {
+                        cell.setAttribute('class', 'white');
+                    }
+                    else {
+                        cell.setAttribute('class', 'black');
+                    }
+                    if (cell.firstChild)
+                        cell.removeChild(cell.firstChild); 
+                }
+            }
+            console.log("thgfhsd");
+        });
+
+        document.getElementById("buttonPause").addEventListener("click", function (e) {
+                hubConnection.invoke("ChangeStatePause");
+        });
+
+        hubConnection.start();
+        
+        window.addEventListener('beforeunload', pageClosed, false);
+
+        function pageClosed() {
+            hubConnection.invoke("ChangeStateClose");
+        }
+    </script>
+
+</body>
+</html>
